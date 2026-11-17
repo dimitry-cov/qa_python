@@ -25,15 +25,20 @@ class TestBooksCollector:
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
     
     #покрываем проверку длины названия (использована параметризация) (проверка добавления книг)
-    @pytest.mark.parametrize('book_name', ['A' * 40, 'A' * 41])
-    def test_add_new_book_name_lenght(self, book_name):
+    @pytest.mark.parametrize('book_name', 'expected_result', [('A * 15', True), ('A' * 40, True), ('A' * 41, False), ('A' * 50, False)])
+    def test_add_new_book_different_lenghts(self, book_name, expected_result):
         collector = BooksCollector()
         collector.add_new_book(book_name)
-        if len(book_name) <= 40:
-            assert book_name in collector.get_books_genre()
-        else:
-            assert book_name not in collector.get_books_genre()
+        assert (book_name in collector.get_books_genre()) == expected_result
 
+    
+    #покрываем проверку получения жанра существующей книги (позитивная)
+    def test_get_book_genre_valid(self):
+        collector = BooksCollector()
+        collector.add_new_book('Оно')
+        collector.set_book_genre('Оно','Ужасы')
+        assert collector.get_book_genre('Оно') == 'Ужасы'
+    
     
     #покрываем проверку отсутствиия жанра в списке доступных (негативная)
     def test_set_book_invalid_genre(self):
@@ -41,14 +46,6 @@ class TestBooksCollector:
         collector.add_new_book('Гарри Поттер')
         collector.set_book_genre('Гарри Поттер', 'Фэнтези')
         assert collector.get_book_genre('Гарри Поттер') == ''
-
-
-    #покрываем проверку получения жанра существующей книги (позитивная)
-    def test_get_book_genre_valid(self):
-        collector = BooksCollector()
-        collector.add_new_book('Оно')
-        collector.set_book_genre('Оно','Ужасы')
-        assert collector.get_book_genre('Оно') == 'Ужасы'
 
 
     #покрываем проверку получения списка книг с определенным жанром (позитивная)
